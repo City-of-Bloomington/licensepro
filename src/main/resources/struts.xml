@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+   <constant name="struts.devMode" value="true" />
+   <constant name="struts.ui.theme" value="simple" />
+   <constant name="struts.action.excludePattern" value="/Login*,/DivisionService*,/callback*" />
+
+   <!-- to use this we need to use annotation
+	<constant name="struts.convention.result.path" value="/WEB-INF/jsp/" />
+   -->
+   <package name="default" extends="struts-default">
+
+     <!-- this is a global action that makes sure user is logged in -->
+		
+     <global-results>
+       <result name="login" type="redirect">welcome.action</result>
+     </global-results>
+
+     <action name="">
+       <interceptor-ref name="defaultStack"></interceptor-ref>
+       <result>/index.html</result>
+     </action>
+     <action name="home">
+       <interceptor-ref name="defaultStack"></interceptor-ref>
+       <result>/Login</result>
+     </action>
+     <action name="Login">
+       <interceptor-ref name="defaultStack"></interceptor-ref>
+       <result>/Login</result>
+     </action>       
+     <action name="logout" class="license.action.LogoutAction">
+       <result>/WEB-INF/jsp/welcome.jsp</result>
+     </action>	 
+     
+     <action name="welcome" class="license.action.WelcomeAction">
+       <result name="success">/WEB-INF/jsp/welcome.jsp</result>
+       <result name="login">/Login</result>	   
+     </action>
+     
+     <action name="dept" 
+	     class="license.action.DeptAction" 
+	     method="execute">
+       <result>/WEB-INF/jsp/dept.jsp</result>
+       <result name="error">/WEB-INF/jsp/dept.jsp</result>
+     </action>
+     <action name="employee" 
+	     class="license.action.EmployeeAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/employee.jsp</result>		
+       <result name="error">/WEB-INF/jsp/employee.jsp</result>
+       <result name="success">/WEB-INF/jsp/employee.jsp</result>
+     </action>
+     <action name="user" 
+	     class="license.action.UserAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/user.jsp</result>		
+       <result name="error">/WEB-INF/jsp/user.jsp</result>
+       <result name="success">/WEB-INF/jsp/user.jsp</result>
+     </action>		
+     <action name="restriction" 
+	     class="license.action.EmployeeRestrictionAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/restriction.jsp</result>		
+       <result name="error">/WEB-INF/jsp/restriction.jsp</result>
+       <result name="success">/WEB-INF/jsp/restriction.jsp</result>
+     </action>
+     <action name="yearTest" 
+	     class="license.action.YearTestAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/yearTest.jsp</result>
+       <result name="edit">/WEB-INF/jsp/yearTest.jsp</result>			
+       <result name="error">/WEB-INF/jsp/yearTest.jsp</result>
+       <result name="success">/WEB-INF/jsp/yearTest.jsp</result>
+       <result name="view">/WEB-INF/jsp/yearTestView.jsp</result>
+     </action>
+     <action name="testRun" 
+	     class="license.action.TestRunAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/testRun.jsp</result>		
+       <result name="error">/WEB-INF/jsp/testRun.jsp</result>
+       <result name="success">/WEB-INF/jsp/testRun.jsp</result>
+     </action>
+     <action name="testSelection" 
+	     class="license.action.TestSelectionAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/testSelection.jsp</result>		
+       <result name="error">/WEB-INF/jsp/testSelection.jsp</result>
+       <result name="success">/WEB-INF/jsp/testSelection.jsp</result>
+     </action>
+     <action name="check" 
+	     class="license.action.InActiveCheckAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/check.jsp</result>		
+       <result name="error">/WEB-INF/jsp/check.jsp</result>
+       <result name="success">/WEB-INF/jsp/check.jsp</result>
+     </action>
+     <action name="newhire" 
+	     class="license.action.NewHireAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/newhire.jsp</result>		
+       <result name="error">/WEB-INF/jsp/newhire.jsp</result>
+       <result name="success">/WEB-INF/jsp/newhire.jsp</result>
+     </action>		
+     <action name="search" 
+	     class="license.action.SearchAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/search.jsp</result>		
+       <result name="error">/WEB-INF/jsp/search.jsp</result>
+       <result name="success">/WEB-INF/jsp/search.jsp</result>
+     </action>
+     <action name="testSearch" 
+	     class="license.action.TestSearchAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/testSearch.jsp</result>		
+       <result name="error">/WEB-INF/jsp/testSearch.jsp</result>
+       <result name="success">/WEB-INF/jsp/testSearch.jsp</result>
+     </action>
+     
+     <action name="report" 
+	     class="license.action.ReportAction" 
+	     method="execute">
+       <result name="input">/WEB-INF/jsp/reportInput.jsp</result>		
+       <result name="error">/WEB-INF/jsp/reportInput.jsp</result>
+       <result name="success">/WEB-INF/jsp/reportResult.jsp</result>
+     </action>
+   </package>
+
+</struts>
