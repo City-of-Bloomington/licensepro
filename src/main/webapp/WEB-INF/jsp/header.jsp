@@ -44,7 +44,7 @@
           <nav id="user_menu">
             <div class="menuLauncher"><s:property value='#session.user.fullname' /></div>
             <div class="menuLinks closed">
-              <a href="<s:property value='#application.url'/>logout.action">Logout</a>
+              <a href="<s:property value='#application.url'/>Logout">Logout</a>
             </div>
           </nav>
           <nav id="admin_menu">

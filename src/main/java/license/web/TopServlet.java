@@ -27,6 +27,7 @@ public class TopServlet extends HttpServlet {
     static Configuration config = null;
     static Logger logger = LogManager.getLogger(TopServlet.class);
     static ServletContext context = null;
+    static String endpoint_logout_uri = "";
     public void init(ServletConfig conf){
 	try{
 	    context = conf.getServletContext();
@@ -57,6 +58,9 @@ public class TopServlet extends HttpServlet {
 	    String client_secret = context.getInitParameter("client_secret");
 	    String scope = context.getInitParameter("scope");
 	    String discovery_uri = context.getInitParameter("discovery_uri");
+	    str = context.getInitParameter("endpoint_logout_uri");
+	    if(str != null)
+		endpoint_logout_uri = str;
 	    config = new
 		Configuration(auth_end_point, token_end_point, callback_uri, client_id, client_secret, scope, discovery_uri, username);
 	    // System.err.println(config.toString());

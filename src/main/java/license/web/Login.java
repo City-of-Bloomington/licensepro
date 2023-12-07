@@ -17,7 +17,7 @@ import license.model.*;
 //
 // For CAS login
 // if using Open ID comment out this line
-@WebServlet(urlPatterns = {"/Login","/login"})
+@WebServlet(urlPatterns = {"/CasLogin","/caslogin"})
 public class Login extends TopServlet{
     static int count = 0;
     static final long serialVersionUID = 60L;	
