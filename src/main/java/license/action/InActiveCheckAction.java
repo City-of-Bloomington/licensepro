@@ -19,12 +19,7 @@ public class InActiveCheckAction extends TopAction{
 
     static final long serialVersionUID = 229L;	
     static Logger logger = LogManager.getLogger(InActiveCheckAction.class);
-    static String ldap_url="", ldap_principle="",ldap_password="";
     //
-    // for NW database to verify active users (temporary till we use ldap)
-    //
-    String msSqlUrl = "", msDb="", msUser="",msPass="";
-    EnvBean envBean = null; 
     InActiveCheck check = null;
     String checksTitle = "Most Recent Inactive Employees Checks";
     String employeesTitle = " inactive employees found in this run  ";
@@ -43,34 +38,23 @@ public class InActiveCheckAction extends TopAction{
 		System.err.println(ex);
 	    }	
 	}
-	if(action.equals("Start")){
+	if(action.startsWith("Start")){ // start schedule
 	    //
 	    // we need this only first time
 	    //
-	    envBean = new EnvBean();
-	    envBean.setUrl(ldap_url);
-	    envBean.setPrinciple(ldap_principle);
-	    envBean.setPassword(ldap_password);
-	    envBean.setMsSqlUrl(msSqlUrl);
-	    envBean.setMsDb(msDb);
-	    envBean.setMsUser(msUser);
-	    envBean.setMsPass(msPass);
-	    getCheck();						
-	    check.setEnvBean(envBean);
-	    back = check.doStart();
-	    if(!back.equals("")){
-		addActionError(back);
-	    }
-	    else{
-		id = check.getId();
-		employees = check.getEmployees();
-		if(employees == null || employees.size() == 0){
-		    addActionMessage("No inactive employee found ");
+	    InactiveScheduler sheduler = new InactiveScheduler(Helper.getToday());
+	    try{
+		back = sheduler.run();
+		if(!back.equals("")){
+		    // 
+		    addActionError(back);
 		}
 		else{
-		    employeesTitle = employees.size()+employeesTitle;
-		    addActionMessage("Found "+employees.size()+" inactive employees");
+		    addActionMessage("Started Successfully");
 		}
+	    }catch(Exception ex){
+		addActionError(""+ex);
+		System.err.println(ex);
 	    }
 	}
 	else if(action.equals("Confirm")){ 
@@ -81,7 +65,17 @@ public class InActiveCheckAction extends TopAction{
 	    else{
 		addActionMessage("Confirmed Successfully");								
 	    }
-	}				
+	}
+	else if(action.startsWith("Run")){
+	    InactiveJob job = new InactiveJob();
+	    job.doWork();
+	    if(!back.equals("")){
+		addActionError(back);
+	    }
+	    else{
+		addActionMessage("Ran Successfully");								
+	    }
+	}	
 	else if(action.equals("Delete")){ 
 	    back = check.doDelete();
 	    if(!back.equals("")){
@@ -89,9 +83,10 @@ public class InActiveCheckAction extends TopAction{
 		addActionError(back);
 	    }
 	    else{
-		addActionMessage("Deleted Successfully");								
+		addActionMessage("Deleted Successfully");
 	    }
 	}
+	
 	else if(!id.equals("")){ 
 	    getCheck();
 	    back = check.doSelect();
@@ -110,45 +105,7 @@ public class InActiveCheckAction extends TopAction{
 	}
 	return ret;
     }
-    @Override  
-    String doPrepare(){
-	String back = "";
-	try{
-	    user = (User)sessionMap.get("user");
-	    if(user == null){
-		back = LOGIN;
-	    }
-	    if(url.equals("")){
-		String val = ctx.getInitParameter("url");
-		if(val != null)
-		    url = val;
-		val = ctx.getInitParameter("ldap_url");
-		if(val != null)
-		    ldap_url = val;
-		val = ctx.getInitParameter("ldap_principle");
-		if(val != null)
-		    ldap_principle = val;
-		val = ctx.getInitParameter("ldap_password");
-		if(val != null)
-		    ldap_password = val;
-		val = ctx.getInitParameter("msSqlUrl");
-		if(val != null)
-		    msSqlUrl = val;
-		val = ctx.getInitParameter("msDb");
-		if(val != null)
-		    msDb = val;
-		val = ctx.getInitParameter("msUser");
-		if(val != null)
-		    msUser = val;
-		val = ctx.getInitParameter("msPass");
-		if(val != null)
-		    msPass = val;								
-	    }
-	}catch(Exception ex){
-	    System.out.println(ex);
-	}		
-	return back;
-    }
+
     public InActiveCheck getCheck(){ 
 	if(check == null){
 	    if(!id.equals("")){

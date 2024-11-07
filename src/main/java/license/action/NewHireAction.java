@@ -19,12 +19,6 @@ public class NewHireAction extends TopAction{
 
     static final long serialVersionUID = 239L;	
     static Logger logger = LogManager.getLogger(NewHireAction.class);
-    // static String ldap_url="", ldap_principle="",ldap_password="";
-    //
-    // for NW database to verify active users (temporary till we use ldap)
-    //
-    //    String msSqlUrl = "", msDb="", msUser="",msPass="";
-    EnvBean envBean = null; 
     NewHire newhire = null;
     String newhiresTitle = "Most Recent New Hire Runs";
     String employeesTitle = " Newly hired employees found in this run  ";
@@ -43,37 +37,26 @@ public class NewHireAction extends TopAction{
 		System.err.println(ex);
 	    }	
 	}
-	if(action.equals("Start")){
+	if(action.startsWith("Start")){ // schedule
 	    //
-	    // we need this only first time
+	    // we run this one time and it will continue for ever
 	    //
-	    envBean = new EnvBean();
-	    envBean.setUrl(ldap_url);
-	    envBean.setPrinciple(ldap_principle);
-	    envBean.setPassword(ldap_password);
-	    envBean.setMsSqlUrl(msSqlUrl);
-	    envBean.setMsDb(msDb);
-	    envBean.setMsUser(msUser);
-	    envBean.setMsPass(msPass);
-	    getNewhire();						
-	    newhire.setEnvBean(envBean);
-	    back = newhire.doStart();
-	    if(!back.equals("")){
-		addActionError(back);
-	    }
-	    else{
-		id = newhire.getId();
-		employees = newhire.getEmployees();
-		if(employees == null || employees.size() == 0){
-		    addActionMessage("No new employee found ");
+	    NewHireScheduler sheduler = new NewHireScheduler(Helper.getToday());
+	    try{
+		back = sheduler.run();
+		if(!back.equals("")){
+		    // 
+		    addActionError(back);
 		}
 		else{
-		    employeesTitle = employees.size()+employeesTitle;
-		    addActionMessage("Found "+employees.size()+" new employees");
+		    addActionMessage("Started Successfully");
 		}
+	    }catch(Exception ex){
+		addActionError(""+ex);
+		System.err.println(ex);
 	    }
 	}
-	else if(action.equals("Delete")){ 
+	else if(action.startsWith("Delete")){ 
 	    back = newhire.doDelete();
 	    if(!back.equals("")){
 		// back to the same page 
@@ -83,6 +66,11 @@ public class NewHireAction extends TopAction{
 		addActionMessage("Deleted Successfully");								
 	    }
 	}
+	else if(action.startsWith("Run")){
+	    NewHireJob job = new NewHireJob();
+	    job.doWork();	    
+	    addActionMessage("Ran Successfully");
+	}	
 	else if(!id.equals("")){ 
 	    getNewhire();
 	    back = newhire.doSelect();
@@ -104,47 +92,7 @@ public class NewHireAction extends TopAction{
 	}
 	return ret;
     }
-    /**
-    @Override  
-    String doPrepare(){
-	String back = "";
-	try{
-	    user = (User)sessionMap.get("user");
-	    if(user == null){
-		back = LOGIN;
-	    }
-	    if(url.equals("")){
-		String val = ctx.getInitParameter("url");
-		if(val != null)
-		    url = val;
-		val = ctx.getInitParameter("ldap_url");
-		if(val != null)
-		    ldap_url = val;
-		val = ctx.getInitParameter("ldap_principle");
-		if(val != null)
-		    ldap_principle = val;
-		val = ctx.getInitParameter("ldap_password");
-		if(val != null)
-		    ldap_password = val;
-		val = ctx.getInitParameter("msSqlUrl");
-		if(val != null)
-		    msSqlUrl = val;
-		val = ctx.getInitParameter("msDb");
-		if(val != null)
-		    msDb = val;
-		val = ctx.getInitParameter("msUser");
-		if(val != null)
-		    msUser = val;
-		val = ctx.getInitParameter("msPass");
-		if(val != null)
-		msPass = val;
-	    }
-	}catch(Exception ex){
-	    System.out.println(ex);
-	}		
-	return back;
-    }
-    */
+
     public NewHire getNewhire(){
 	if(newhire == null){
 	    if(!id.equals("")){

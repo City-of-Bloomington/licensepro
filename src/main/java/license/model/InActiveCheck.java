@@ -24,6 +24,7 @@ public class InActiveCheck{
     static SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
     static Logger logger = LogManager.getLogger(InActiveCheck.class);
     List<Employee> employees = null;
+    List<Employee> inActiveEmployees = null;
     String[] add_inactive = null;
     public InActiveCheck(){
     }
@@ -62,6 +63,22 @@ public class InActiveCheck{
 	}
 	return employees;
     }
+
+    public List<Employee> getInactiveEmployees(){
+	if(employees == null && !id.equals("")){
+	    EmployeeList dl = new EmployeeList();
+	    dl.setInactive_check_id(id);
+	    dl.setNoLimit();
+	    String back = dl.find();
+	    if(back.equals("")){
+		List<Employee> list = dl.getEmployees();
+		if(list != null && list.size() > 0){
+		    employees = list;
+		}
+	    }
+	}
+	return employees;
+    }    
     //
     // setters
     //
@@ -81,10 +98,13 @@ public class InActiveCheck{
 	if(val != null)
 	    envBean = val;
     }
+    /**
+       // not needed anymore
     public void setAdd_inactive(String[] vals){
 	if(vals != null)
 	    add_inactive = vals;
-    }		
+    }
+    */
     //
     public String doSelect(){
 				
@@ -151,9 +171,10 @@ public class InActiveCheck{
 	}
 	if(msg.equals("")){
 	    msg = findAndInactiveEmployees();
-	    if(employees != null && employees.size() > 0){
+	    if(inActiveEmployees != null && inActiveEmployees.size() > 0){
 		msg += addInactiveEmployeeToCheckList();
 	    }
+	    msg = doInactive();
 	}
 	return msg;
     }
@@ -172,7 +193,7 @@ public class InActiveCheck{
 	else{
 	    System.err.println(back);
 	}
-	List<Employee> inActiveEmployees = new ArrayList<Employee>();
+	inActiveEmployees = new ArrayList<Employee>();
 	// using ldap
 	// we turn off this for now till ldap is complete with employees info
 	// thne we switch to ldap
@@ -180,7 +201,7 @@ public class InActiveCheck{
 	// Set<String> set = Helper.getLdapEmployeeNums(envBean);
 	//
 	// using NW db for now
-	Set<String> set = getNWEmployeeNums();
+	Set<String> set = findNwActiveEmployeeSet();
 	System.err.println(" set "+set.size());
 	int jj=1;
 	if(employees != null && set != null){
@@ -192,18 +213,11 @@ public class InActiveCheck{
 			System.err.println((jj++)+" Not found "+str);
 		    }
 		}
-		employees = new ArrayList<Employee>();						
-		employees = inActiveEmployees;
 	    }
 	}
 	return back;
     }
-    public Set<String> getNWEmployeeNums(){
-	String msg = "";
-	Connection con = null;
-	Statement stmt = null;
-	ResultSet rs = null;
-	Set<String> set = new HashSet<String>();
+    //
 	/*
 	  1 EmployeeJobID
 	  2 EffectiveDate
@@ -243,7 +257,16 @@ public class InActiveCheck{
 	  36 Pending
 	  37 ProcessStatus
 	  38 StandardWeeklyHours
-	*/
+	*/    
+    // script too complicated replaced with the other one
+    /**
+    public Set<String> getNWEmployeeNums(){
+	String msg = "";
+	Connection con = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	Set<String> set = new HashSet<String>();
+
 	String qq = "select ejp.*, g.GradeCode, ei.* , ej.StandardWeeklyHours from HR.vwEmployeeJobWithPosition ejp, "+
 	    " HR.vwEmployeeInformation ei, "+
 	    " HR.Grade g, "+
@@ -272,7 +295,7 @@ public class InActiveCheck{
 	    }
 	    stmt = con.createStatement();
 	    rs = stmt.executeQuery(qq);
-	    /*
+	    //
 	      ResultSetMetaData rsmd = rs.getMetaData();
 	      int numColumns = rsmd.getColumnCount();
 
@@ -281,17 +304,18 @@ public class InActiveCheck{
 	      String str = rsmd.getColumnName(i);
 	      System.err.println(i+" "+str);
 	      }
-	    */
+	    //
 	    int jj=1;
 	    while(rs.next()){
 		String str  = rs.getString(22); // empl num
 		// String str2 = rs.getString(8); // number
 		// String str2 = rs.getString(31); // ss 
 		String str2 = rs.getString(35); // fullname
+		// System.err.println(jj+" "+str2+" "+str2);
 		if(str != null && str2 != null){
 		    if(!set.contains(str)){
 			set.add(str);
-			// System.err.println((jj++)+" "+str+" "+str2);
+		       System.err.println((jj++)+" "+str+" "+str2);
 		    }
 		}
 	    }
@@ -304,6 +328,7 @@ public class InActiveCheck{
 	}
 	return set;
     }
+*/
     public String addInactiveEmployeeToCheckList(){
 	String msg = "";
 	String qq = " insert into inactive_employees values(?,?) ";
@@ -318,7 +343,7 @@ public class InActiveCheck{
 		return msg;
 	    }
 	    pstmt = con.prepareStatement(qq);
-	    for(Employee one:employees){
+	    for(Employee one:inActiveEmployees){
 		pstmt.setString(1, id);
 		pstmt.setString(2, one.getId());
 		pstmt.executeUpdate();
@@ -404,23 +429,30 @@ public class InActiveCheck{
     //
     public String doInactive(){
 	String msg = "";
-	String qq = " update employees set active=null where id=?";
+	String qq = " update employees set active=null where id in ";
 	Connection con = null;
 	PreparedStatement pstmt = null;
 	ResultSet rs = null;
 	logger.debug(qq);
 	//
+	String inactiveSet = "";
+	for (Employee one: inActiveEmployees){
+	    if(!inactiveSet.isEmpty())inactiveSet +=","; 
+	    inactiveSet += one.getId();
+	}
+	if(inactiveSet.isEmpty()){
+	    return "No data found ";
+	}
+	System.err.println(" inactive set "+inactiveSet);
 	try{
 	    con = Helper.getConnection();
 	    if(con == null){
 		msg = "Could not connect ";
 		return msg;
 	    }
-	    for(String str:add_inactive){
-		pstmt = con.prepareStatement(qq);
-		pstmt.setString(1, str);
-		pstmt.executeUpdate();
-	    }
+	    qq += "("+inactiveSet+")";
+	    pstmt = con.prepareStatement(qq);
+	    pstmt.executeUpdate();
 	}catch(Exception e){
 	    msg += e+":"+qq;
 	    logger.error(msg);
@@ -429,6 +461,69 @@ public class InActiveCheck{
 	    Helper.databaseDisconnect(con, pstmt, rs);
 	}
 	return msg;
-    }		
+    }
+    public Set<String> findNwActiveEmployeeSet(){
+	String msg = "";
+	Connection con = null;
+	Statement stmt = null;
+	ResultSet rs = null;
+	Set<String> set = new HashSet<String>();	
+	String qq = "select distinct ei.EmployeeNumber employeeNumber,"+
+	    "ei.firstname,"+
+	    "isnull(ei.MiddleName, '') middleName, "+
+	    "ei.LastName lastName,"+
+	    "ei.xGroupCodeDesc benefitgroup, "+
+	    "ei.OrgStructureDescconcatenated department,"+
+	    "ei.PositionTitle,"+
+	    "ei.employmentStatus, "+
+	    "ei.employeeName "+
+	    "FROM HR.vwEmployeeInformation ei "+
+	    "where "+
+	    // " ei.employmentStatus = 'Active' "+
+	    " ei.xGroupCodeDesc != 'Temporary Employee' "+
+	    " and ei.[vsEmploymentStatusId] = 258 "+
+	    "order by department, LastName, firstname ";
+	System.err.println(qq);
+	logger.debug(qq);				
+				
+	try{
+	    con = Helper.getMsSqlDatabaseConnect(envBean);
+	    if(con == null){
+		msg = "Could not connect to MS Db";
+		logger.error(msg);
+		return null;
+	    }
+	    stmt = con.createStatement();
+	    rs = stmt.executeQuery(qq);
+	    int jj=1;
+	    while(rs.next()){
+		String str  = rs.getString(1); // empl num
+		//String str2 = rs.getString(2); // first
+		//String str3 = rs.getString(3); // middle
+		//String str4 = rs.getString(4); // last
+		//String str5 = rs.getString(5); // benefit
+		//String str6 = rs.getString(6); // depart
+		//String str7 = rs.getString(7); // title
+		//String str8 = rs.getString(8); // status
+		String str9 = rs.getString(9); // full name
+		//System.err.println(jj+" "+str6+" "+str+" "+str9+" "+str5);
+		//jj++;
+		if(str != null && str9 != null){
+		    if(!set.contains(str)){
+			set.add(str);
+			System.err.println(jj+" "+str+" "+str9);
+			jj++;
+		    }
+		}
+	    }
+	}
+	catch(Exception ex){
+	    System.err.println(ex);
+	}
+	finally{
+	    Helper.databaseDisconnect(con, stmt, rs);
+	}	    
+	return set;
+    }
 
 }

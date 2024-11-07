@@ -427,6 +427,9 @@ public class Employee implements java.io.Serializable{
 	}
 	return restrictions;
     }
+    public void setInActive(){
+	active = "";
+    }
     //
     @Override
     public int hashCode() {

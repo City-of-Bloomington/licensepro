@@ -194,8 +194,8 @@ public class NewHire{
 	List<Employee> list = new ArrayList<Employee>();
 	Set<String> set = new HashSet<String>();
 	//
-	// since last year
-	String lyDate = Helper.getDateMonthsFromNow(-6);
+	// since last 6 months
+	String lyDate = Helper.getDateMonthsFromNow(-48);
 	Hashtable<String, String> table = getDept_correspond();
 	/*
 	  1 EmployeeJobID
