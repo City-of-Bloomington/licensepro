@@ -51,26 +51,27 @@
             <div class="menuLauncher">Admin</div>
             <div class="menuLinks closed">
               <s:if test="#session.user.isAdmin()">
-								<a href="<s:property value='#application.url'/>report.action">Reports</a>
-								<a href="<s:property value='#application.url'/>user.action">Users</a>								
+		  
+		  <a href="<s:property value='#application.url'/>user.action">Users</a>								
               </s:if>
             </div>
           </nav>
         </div>
-	  </s:if>
-	</div>
-
-	<div class="fn1-nav1">
-      <nav class="fn1-nav1-container">
-				<a href="<s:property value='#application.url'/>employee.action">Employees</a>
-				<a href="<s:property value='#application.url'/>yearTest.action">Testing</a>
-				<a href="<s:property value='#application.url'/>dept.action">Departments</a>
-				<a href="<s:property value='#application.url'/>check.action">Inactive Check</a>
-				<a href="<s:property value='#application.url' />newhire.action">New Hire </a>								
-        <a href="<s:property value='#application.url'/>search.action">Employee Search</a>
-        <a href="<s:property value='#application.url'/>testSearch.action">Test Search</a>
-      </nav>
+      </s:if>
+    </div>
+    
+    <div class="fn1-nav1">
+	<nav class="fn1-nav1-container">
+	    <a href="<s:property value='#application.url'/>employee.action">Employees</a>
+	    <a href="<s:property value='#application.url'/>yearTest.action">Testing</a>
+	    <a href="<s:property value='#application.url'/>dept.action">Departments</a>
+	    <a href="<s:property value='#application.url'/>check.action">Inactive Check</a>
+	    <a href="<s:property value='#application.url' />newhire.action">New Hire </a>								
+            <a href="<s:property value='#application.url'/>search.action">Employee Search</a>
+            <a href="<s:property value='#application.url'/>testSearch.action">Test Search</a>
+	    <a href="<s:property value='#application.url'/>report.action">Reports</a>	  
+	</nav>
     </div>
   </header>
   <main>
-    <div class="fn1-main-container">
+      <div class="fn1-main-container">

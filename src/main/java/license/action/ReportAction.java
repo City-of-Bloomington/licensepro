@@ -55,6 +55,7 @@ public class ReportAction extends TopAction{
 		if(emps != null && emps.size() > 0){
 		    employeesTitle = "Total Matching "+emps.size();
 		    employees = emps;
+		    ret = "output";
 		}
 		showDept = report.showDept();
 	    }
